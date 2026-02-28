@@ -240,17 +240,16 @@ function renderResultado(d){
   const imgEl  = document.getElementById('res-foto');
   const initEl = document.getElementById('res-iniciais');
 
-  function tentarFoto(urls, idx){
-    if(idx >= urls.length){ imgEl.style.display='none'; initEl.style.display='flex'; return; }
-    imgEl.src     = urls[idx];
-    imgEl.onload  = () => { imgEl.style.display='block'; initEl.style.display='none'; };
-    imgEl.onerror = () => tentarFoto(urls, idx+1);
+  function carregarFoto(src){
+    imgEl.src     = src;
+    imgEl.onload  = () => { imgEl.style.display = 'block'; initEl.style.display = 'none'; };
+    imgEl.onerror = () => { imgEl.style.display = 'none';  initEl.style.display = 'flex'; };
     imgEl.style.display = 'none';
   }
 
   if(d.fotoId){
-    // Carrega via proxy da API — resolve CORS do Google Drive
-    tentarFoto(['https://certificados-5s-api.vercel.app/foto?id=' + d.fotoId], 0);
+    // Proxy da API — resolve CORS do Google Drive
+    carregarFoto(`${API_URL}/foto?id=${encodeURIComponent(d.fotoId)}`);
   } else {
     imgEl.style.display  = 'none';
     initEl.style.display = 'flex';
@@ -272,10 +271,11 @@ function renderResultado(d){
   showView('result');
 }
 
-// ── API URL (FastAPI — Render)
-const API_URL = 'https://certificados-5s-api.vercel.app';
+// ── API
+const API_URL   = 'https://certificados-5s-api.vercel.app';
+const API_TOKEN = 'NYOc4Komp_AF-KBeQWjDHdxlKTY6Q-uZeCChGd2p1rk';
 
-// ── FETCH (ativo)
+// ── FETCH com token de segurança
 async function autenticar(codigoAuto){
   const codigo = (codigoAuto || document.getElementById('input-codigo').value || '').trim();
   if(!codigo){ showToast('Por favor, insira o código.'); return; }
@@ -287,7 +287,9 @@ async function autenticar(codigoAuto){
 
   try {
     const resp = await Promise.race([
-      fetch(`${API_URL}/validar?codigo=${encodeURIComponent(codigo)}`),
+      fetch(`${API_URL}/validar?codigo=${encodeURIComponent(codigo)}`, {
+        headers: { 'X-API-Token': API_TOKEN }
+      }),
       timeout
     ]);
     const d = await resp.json();
