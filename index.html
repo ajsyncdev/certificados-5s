@@ -240,19 +240,11 @@ function renderResultado(d){
   const imgEl  = document.getElementById('res-foto');
   const initEl = document.getElementById('res-iniciais');
 
-  if(d.fotoId){
-    // Fetch com token — <img> não suporta headers
-    fetch(`${API_URL}/foto?id=${encodeURIComponent(d.fotoId)}`, {
-      headers: { 'X-API-Token': API_TOKEN }
-    })
-    .then(r => r.ok ? r.blob() : Promise.reject())
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      imgEl.src    = url;
-      imgEl.onload = () => { imgEl.style.display = 'block'; initEl.style.display = 'none'; };
-      imgEl.style.display = 'none';
-    })
-    .catch(() => { imgEl.style.display = 'none'; initEl.style.display = 'flex'; });
+  if(d._fotoBlob){
+    // Foto já carregada em paralelo — exibe instantaneamente
+    imgEl.src    = d._fotoBlob;
+    imgEl.onload = () => { imgEl.style.display = 'block'; initEl.style.display = 'none'; };
+    imgEl.style.display = 'none';
   } else {
     imgEl.style.display  = 'none';
     initEl.style.display = 'flex';
@@ -289,6 +281,7 @@ async function autenticar(codigoAuto){
   );
 
   try {
+    // 1. Busca os dados do certificado
     const resp = await Promise.race([
       fetch(`${API_URL}/validar?codigo=${encodeURIComponent(codigo)}`, {
         headers: { 'X-API-Token': API_TOKEN }
@@ -297,6 +290,20 @@ async function autenticar(codigoAuto){
     ]);
     const d = await resp.json();
     if(!d || d.erro){ showView('search'); showToast(d?.mensagem || 'Certificado não encontrado.'); return; }
+
+    // 2. Dispara busca da foto em paralelo com a renderização
+    const fotoPromise = d.fotoId
+      ? fetch(`${API_URL}/foto?id=${encodeURIComponent(d.fotoId)}`, {
+          headers: { 'X-API-Token': API_TOKEN }
+        }).then(r => r.ok ? r.blob() : null).catch(() => null)
+      : Promise.resolve(null);
+
+    // 3. Aguarda dados + foto juntos antes de mostrar
+    const [, blob] = await Promise.all([Promise.resolve(d), fotoPromise]);
+
+    // 4. Injeta o blob da foto no objeto de dados
+    if(blob) d._fotoBlob = URL.createObjectURL(blob);
+
     renderResultado(d);
   } catch(err){
     showView('search');
