@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src https://certificados-5s-api.vercel.app;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Autenticação | Escola Técnica 5S</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -243,7 +244,7 @@ function renderResultado(d){
   if(d._fotoBlob){
     // Foto já carregada em paralelo — exibe instantaneamente
     imgEl.src    = d._fotoBlob;
-    imgEl.onload = () => { imgEl.style.display = 'block'; initEl.style.display = 'none'; };
+    imgEl.onload = () => { imgEl.style.display = 'block'; initEl.style.display = 'none'; URL.revokeObjectURL(d._fotoBlob); };
     imgEl.style.display = 'none';
   } else {
     imgEl.style.display  = 'none';
