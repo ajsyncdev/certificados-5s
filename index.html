@@ -110,64 +110,7 @@ footer{text-align:center;padding:32px 20px;font-size:.72rem;color:#94a3b8;line-h
         <div class="person-badge">✓ Certificado Verificado</div>
       </div>
     </div>
-    <div class="info-card">
-      <div class="info-row">
-        <div class="row-icon">📅</div>
-        <div class="row-texts">
-          <div class="row-label">Validade do Certificado</div>
-          <div class="row-value green" id="res-validade">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="row-icon">🪪</div>
-        <div class="row-texts">
-          <div class="row-label">Documentos</div>
-          <div class="row-value" id="res-cpf">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="row-icon">📍</div>
-        <div class="row-texts">
-          <div class="row-label">Cidade (UF)</div>
-          <div class="row-value" id="res-cidade">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="row-icon">🔑</div>
-        <div class="row-texts">
-          <div class="row-label">Código de Autenticidade</div>
-          <div class="row-value mono" id="res-codigo">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="row-icon">🏢</div>
-        <div class="row-texts">
-          <div class="row-label">Instituição Emissora</div>
-          <div class="row-value" id="res-inst" style="font-size:.82rem;white-space:normal;word-break:break-word;line-height:1.3">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="row-icon">📋</div>
-        <div class="row-texts">
-          <div class="row-label">Curso Concluído</div>
-          <div class="row-value green" id="res-curso" style="white-space:normal;word-break:break-word;line-height:1.3">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="row-icon">⏱️</div>
-        <div class="row-texts">
-          <div class="row-label">Carga Horária</div>
-          <div class="row-value" id="res-carga">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="row-icon">📅</div>
-        <div class="row-texts">
-          <div class="row-label">Data de Realização</div>
-          <div class="row-value" id="res-data">—</div>
-        </div>
-      </div>
-    </div>
+    <div class="info-card" id="info-card-dinamico"></div>
     <div id="status-box"></div>
   </div>
 </main>
@@ -230,23 +173,47 @@ function mascararCpf(cpf){
   return s.slice(0,3) + '.***.***-' + s.slice(9,11);
 }
 
+// ── Campos dinâmicos
+function criarInfoRow(icone, label, valor, extra){
+  if(!valor) return '';
+  const cls = extra || 'row-value';
+  return `<div class="info-row">
+    <div class="row-icon">${icone}</div>
+    <div class="row-texts">
+      <div class="row-label">${label}</div>
+      <div class="${cls}">${valor}</div>
+    </div>
+  </div>`;
+}
+
 // ── Render
 function renderResultado(d){
-  const elVal = document.getElementById('res-validade');
-  elVal.textContent = formatarDataSimples_(d.validade) || '—';
-  elVal.className   = 'row-value ' + (d.status === 'expirado' ? 'red' : 'green');
-
-  document.getElementById('res-nome').textContent     = d.nome               || '—';
-  const cpfTxt = 'CPF: ' + mascararCpf(d.cpf);
-  const rgTxt  = d.rg ? '  |  RG: ' + d.rg : '';
-  document.getElementById('res-cpf').textContent = cpfTxt + rgTxt;
-  document.getElementById('res-cidade').textContent   = d.cidade             || '—';
-  document.getElementById('res-codigo').textContent   = d.codigo             || '—';
-  document.getElementById('res-inst').textContent     = d.instituicao        || '—';
-  document.getElementById('res-curso').textContent    = d.curso              || '—';
-  document.getElementById('res-carga').textContent    = d.carga              || '—';
-  document.getElementById('res-data').textContent     = d.data               || '—';
+  document.getElementById('res-nome').textContent     = d.nome || '—';
   document.getElementById('res-iniciais').textContent = gerarIniciais(d.nome);
+
+
+  const valTxt  = formatarDataSimples_(d.validade);
+  const valCls  = 'row-value ' + (d.status === 'expirado' ? 'red' : 'green');
+
+  let html = '';
+  html += criarInfoRow('📅', 'Validade do Certificado', valTxt,        valCls);
+  html += criarInfoRow('🔑', 'Código de Autenticidade', d.codigo,      'row-value mono');
+  html += criarInfoRow('🪪', 'C.P.F',                  d.cpf ? mascararCpf(d.cpf) : '');
+  html += criarInfoRow('🪪', 'R.G',                    d.rg  || '');
+  html += criarInfoRow('📍', 'Cidade (UF)',             d.cidade);
+  html += criarInfoRow('🏢', 'Instituição Emissora',   d.instituicao, 'row-value inst-val');
+  html += criarInfoRow('📋', 'Curso Concluído',        d.curso,       'row-value curso-val');
+  html += criarInfoRow('⏱️', 'Carga Horária',          d.carga);
+  html += criarInfoRow('📅', 'Período de Realização',  d.data);
+  document.getElementById('info-card-dinamico').innerHTML = html;
+
+  document.querySelectorAll('.inst-val, .curso-val').forEach(el=>{
+    el.style.whiteSpace='normal';
+    el.style.wordBreak='break-word';
+    el.style.lineHeight='1.3';
+  });
+  document.querySelectorAll('.inst-val').forEach(el=>el.style.fontSize='.82rem');
+  document.querySelectorAll('.curso-val').forEach(el=>el.style.color='var(--green)');
 
   const imgEl  = document.getElementById('res-foto');
   const initEl = document.getElementById('res-iniciais');
