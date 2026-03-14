@@ -14,7 +14,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .hd-left{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.92);line-height:1.5;opacity:0;pointer-events:none;transition:opacity .3s}
 .hd-left.on{opacity:1;pointer-events:auto}
 .hd-left span{display:block;font-size:.65rem;color:rgba(255,255,255,.7)}
-.logo-box{background:#fff;border:2px solid #000;padding:5px 12px 5px 8px;border-radius:8px;display:flex;align-items:center;gap:10px;box-shadow:2px 2px 0 rgba(0,0,0,.15);justify-self:center}
+.logo-box{background:#fff;border:2px solid #000;padding:5px 12px 5px 8px;border-radius:8px;display:flex;align-items:center;gap:10px;box-shadow:2px 2px 0 rgba(0,0,0,.15);justify-self:center;cursor:pointer;user-select:none}
 .logo-img{height:36px;width:auto;display:block}
 .logo-txt{font-size:.78rem;font-weight:800;color:#000;line-height:1.15}
 .btn-nova{justify-self:end;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:7px 14px;border-radius:10px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;opacity:0;pointer-events:none;transition:opacity .3s,background .2s}
@@ -72,7 +72,7 @@ footer{text-align:center;padding:32px 20px;font-size:.72rem;color:#94a3b8;line-h
 <body>
 <header class="header">
   <div></div>
-  <div class="logo-box">
+  <div class="logo-box" onclick="abrirAdmin()" title="Acesso administrativo">
     <img src="data:image/jpeg;base64,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" class="logo-img" alt="5S">
     <div class="logo-txt">ESCOLA TÉCNICA 5S<br>CONSULTORIA E TREINAMENTOS</div>
   </div>
@@ -331,6 +331,10 @@ function formatarDataSimples_(v){
     return dd + '/' + mm + '/' + d.getFullYear();
   }
   return v;
+}
+
+function abrirAdmin(){
+  window.location.href = 'https://certificados-5s-api.vercel.app/';
 }
 
 window.addEventListener('load', () => {
