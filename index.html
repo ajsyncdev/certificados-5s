@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src https://certificados-5s-api.vercel.app;">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Autenticação | Escola Técnica 5S</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--green:#2f855a;--green-light:#38a169;--green-bg:#f0fdf4;--bg:#f1f5f9;--card:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--radius:20px;--shadow:0 4px 24px rgba(0,0,0,.08);--shadow-lg:0 12px 40px rgba(0,0,0,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.header{background:linear-gradient(135deg,#22c55e,#16a34a);padding:12px 20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(22,163,74,.35);gap:10px}
+.hd-left{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.92);line-height:1.5;opacity:0;pointer-events:none;transition:opacity .3s}
+.hd-left.on{opacity:1;pointer-events:auto}
+.hd-left span{display:block;font-size:.65rem;color:rgba(255,255,255,.7)}
+.logo-box{background:#fff;border:2px solid #000;padding:5px 12px 5px 8px;border-radius:8px;display:flex;align-items:center;gap:10px;box-shadow:2px 2px 0 rgba(0,0,0,.15);justify-self:center}
+.logo-img{height:36px;width:auto;display:block}
+.logo-txt{font-size:.78rem;font-weight:800;color:#000;line-height:1.15}
+.btn-nova{justify-self:end;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:7px 14px;border-radius:10px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;opacity:0;pointer-events:none;transition:opacity .3s,background .2s}
+.btn-nova.on{opacity:1;pointer-events:auto}
+.btn-nova:hover{background:rgba(255,255,255,.32)}
+main{max-width:480px;margin:0 auto;padding:24px 16px 48px}
+.view{display:none}
+.view.active{display:block;animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.search-card{background:var(--card);border-radius:var(--radius);padding:36px 28px;box-shadow:var(--shadow-lg);border:1px solid var(--border);text-align:center}
+.seal{display:inline-flex;align-items:center;gap:6px;background:var(--green-bg);color:var(--green);border:1px solid #bbf7d0;padding:5px 14px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:20px}
+.search-card h1{font-size:1.55rem;font-weight:800;letter-spacing:-.03em;margin-bottom:10px;line-height:1.2}
+.search-card p{color:var(--muted);font-size:.9rem;line-height:1.65;margin-bottom:28px}
+.input-field{width:100%;padding:15px 18px;background:#f8fafc;border:2px solid var(--border);border-radius:14px;font-size:.95rem;font-family:inherit;font-weight:500;transition:all .25s;outline:none;margin-bottom:14px;color:var(--text)}
+.input-field:focus{background:#fff;border-color:var(--green);box-shadow:0 0 0 4px rgba(47,133,90,.12)}
+.btn-verify{width:100%;padding:15px;background:linear-gradient(135deg,var(--green-light),var(--green));color:#fff;border:none;border-radius:14px;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .25s;font-family:inherit;box-shadow:0 4px 14px rgba(47,133,90,.3)}
+.btn-verify:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(47,133,90,.4)}
+.loader-view{text-align:center;padding:64px 0}
+.spinner{width:48px;height:48px;border:4px solid #dcfce7;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-view p{font-weight:600;color:var(--muted);font-size:.9rem}
+.person-hero{background:linear-gradient(135deg,#166534,var(--green-light));border-radius:var(--radius);padding:24px 20px;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.person-photo{width:74px;height:74px;border-radius:16px;object-fit:cover;border:3px solid rgba(255,255,255,.5);background:#166534;display:block;flex-shrink:0;position:relative;z-index:1}
+.person-initials{width:74px;height:74px;border-radius:16px;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;color:#fff;flex-shrink:0;z-index:1;position:relative}
+.person-info{min-width:0;z-index:1}
+.person-name{font-size:1.05rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:5px}
+.person-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+.info-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+.info-row{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #f1f5f9;gap:12px;transition:background .15s}
+.info-row:last-child{border-bottom:none}
+.info-row:hover{background:#f8fafc}
+.row-icon{width:34px;height:34px;flex-shrink:0;background:var(--green-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;border:1px solid #bbf7d0}
+.row-texts{min-width:0;flex:1}
+.row-label{font-size:.67rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.row-value{font-size:.95rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-value.mono{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#94a3b8;font-weight:400;white-space:normal;word-break:break-all}
+.row-value.green{color:var(--green);font-weight:700}
+.row-value.red{color:#dc2626;font-weight:700}
+.status-banner{border-radius:var(--radius);padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.status-banner.valid{background:#f0fdf4;border:1.5px solid #86efac}
+.status-banner.expired{background:#fef2f2;border:1.5px solid #fca5a5}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.valid .status-dot{background:#16a34a;animation:pulse 2s ease infinite}
+.expired .status-dot{background:#dc2626}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,.4)}50%{box-shadow:0 0 0 8px rgba(22,163,74,0)}}
+.status-title{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.valid .status-title{color:#15803d}
+.expired .status-title{color:#b91c1c}
+.status-sub{font-size:.82rem;color:var(--muted);margin-top:2px}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:11px 22px;border-radius:12px;font-size:.83rem;font-weight:600;display:none;z-index:999;white-space:nowrap;box-shadow:0 16px 32px rgba(0,0,0,.25)}
+footer{text-align:center;padding:32px 20px;font-size:.72rem;color:#94a3b8;line-height:1.8}
+</style>
+<script>const SERVER_CODIGO="";</script>
+</head>
+<body>
+<header class="header">
+  <div></div>
+  <div class="logo-box">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/7QCEUGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAGgcAigAYkZCTUQwYTAwMGFiNzAxMDAwMDk1MDMwMDAwYTYwNTAwMDA5NDA2MDAwMGUyMDcwMDAwZjQwYTAwMDA3ZjBlMDAwMGRiMGUwMDAwYjUwZjAwMDA4ZjEwMDAwMDgyMTQwMDAwAP/bAIQABQYGCwgLCwsLCw0LCwsNDg4NDQ4ODw0ODg4NDxAQEBEREBAQEA8TEhMPEBETFBQTERMWFhYTFhUVFhkWGRYWEgEFBQUKBwoICQkICwgKCAsKCgkJCgoMCQoJCgkMDQsKCwsKCw0MCwsICwsMDAwNDQwMDQoLCg0MDQ0MExQTExOc/8IAEQgAlgCWAwEiAAIRAQMRAf/EAIIAAAEEAwEAAAAAAAAAAAAAAAABAwYHAgQFCBAAAQICBgQKCAQFBQAAAAAAAQIDABEEBRASITEgIlFhExQwMkFScZGh0QZCYoGSwdLhIzOjsRVygoOTQ3Oi8PERAQABAgQFBAMBAAAAAAAAAAERACExQVFhECBxgZGhscHwMNHh8f/aAAwDAQACAAMAAAABuUAANMNyP1PXOGFqw2NmGGwziqY7shiKKtzWR5R2Vy9bFS2xm5kAoU1ctNBcoaarpedDiNMgGOIAgKiqCAAqKCTiDinrl7z/AOgHXimrlppcrloe2PMOGCANtHU5djajmgXERLfqDsWOYYVtyJjEuxwI3x5/E+w5ywNvbL2onq5ZeqqauGnnXm6pksaZZAExLfqG9uHtSKsbOjcZ3OOzNubtcyotObaMl5/L5nWjmxkyBt7YqKHoWJsPuvVdrZYtMgAF3UiaLvoqB1iaDt3yqjbyj+zw4HZVEdLmS3ndHHpcaAAdnsioodmwKptZVrLSl8QQABN68/P1ocLandEehcI/tQWeo1qY8SpJrzZLw109iJb+rzwOp1BUUJPMnG3HdymfV/lnHHWAxwCYdvLKFdqVuazkM4E72FxgSS/pOM1fhcI45TxuaeOIqShVu6B3LTTr9y1LbWKJ5CJxB22ZK9FDWSVZRMQlhEwJUsUAlaRUDt8QHjL0hE7ZfdKauWms87lAQZoX0AInkAvanm2uUBjiAAAABKFWM3JLZY44AZ5lNXLTQXKU0IXKU0BcrdPCkshj5jjX/Itcbahs2bM3J5KaaMsrlKaFW5SmgLlpoA//2gAIAQEAAQUC0aTWDNHh/wBIVGHKzpDkKcUqxL60w1XFIRFH9IQYYpLbw5B59LKadXa3eRbcU2aDXs4BnpUulooyKXTF0lXJ1bWiqMULCxa88llNMpaqSvlaorLi6ra7pvCrto1GU+r+CvR/BXoFSuwmqbsO0UtQptJh2jXdGo6bwqIrCk8XZ0KjRraFZuBCQoGykN3TbRKQWHEqvD0hfmrQqVEmopNZuIe465C6c7KlUxx+GHbhNLEOv39GpH+EYrNzhKRoVai6xAq1q9wCIcoSVQ42UEoSYXRQYWgpOh6POyW4q8rQYp7ATxhuTtd40KsU0iymN3kWUhF5OhQ3uCVyFXtqD0Uj8tl8psOiBOH03V2sFIWmhMiFMJKXGlUddBbvmKwUQ03RjOHlXU6FWscM5XDVykaFW1kJQROxawgPvcKYUoJh52+dD0daj0ho8xotUx1qBXD8KrZ8wX1qPGVwaSuCqelVVH4FiksB5txstqsoF64A6I1BFwtLpLCimnNFwB9fF3wuKcQQG0IdeaLS7KsonGHrK9oM7UPNiBSGxHDtQKS2IFJbECktiOHajjDccYbg0how+6hQgCcVXQuLN2ETitKtNGVytTVZd0VoCxWVUKo/JgTirKmu8hTajQ7FIojjB06JVj1IihVW3RuSUkKh+pGHId9HliHqIpqAJwxVrj0NejsUeqmGdP8A/9oACAEDAAE/AbCuJ2TgLgGegpU9IGAZ2LNjSbygI4qnf3wugoV0q9xlFNZ4FZCZgYSPu2xR372qc+g2JNirKINbsEPJUoSSZb4VRaSnEPX5dEyJw5Sr0wtJnkccYZDZ5uY252ptadKMumF0pRy1Yoz3CA4zIwis6NNQWM5YjbL5wlUiDbODZRlgGRljkYeYDm6KOwmjpInvJOEUynFajd5owB6e2GGrxGwZ2gQsWSgKUMlGFzVmZxwCeqO6LlgsInBETPW8E+UTPW8E+UTPW8E+UTPW8E+UTPW8E+UePd8oSLSJwUy0QnSuwYA0f//aAAgBAgABPwDhDhUuQjOHJLxKaKUcRlcIQYlqSBIZk8AsS237VSES8suFMv2j+8InkxP6gPdFQvjYt9FuAgRMze1Y5Tj4EvHmv3ioj3Ux5J/ijg7cZ6xZAuIskRlhnTAS/wBt+S21eQl4ITdyN70djOGdDMD1F70hGI0cpbKSAs0nZic5bUyM4UQWkhkxM7VH8MtfH0yrDUZqJAJYWPVSGxeldMuvxRy8U+kQJCal/LxyYhPATahFfUvmvr3zX175r69819++atR7l80hvyBDkCajx5k0KPl//9oACAEBAQE/EOWY0Ld/suxvWkMq0rko1zfRX60pK/0ZKEXFHWWablj6ccN2VpbsvnjFH+DfS8P0Pw4n+kxcgXGQK0pjKaXow7fFp2oolVlVzVuv4MbCYF3MTUZHMpjSgSdv704lEmOICFxEsiYJzemGBWP+Au7usTSGdkM1m+CA/Gqu8hfYWcYUAJIzOAJ9tg35L39TNyAzgBmtOpiyJl2Gqx9IgOeeYDqP2J6CoMklx4vsG22F2G39PInQCVBUYiTIi3E6deNcqXYhQXdC/bap2UYjAnTQsJ3ueYNAM4XTC12evK8DnI+QLh7t/CUmVa/vT2VMlFCq3Vbq7rd5Ngr7r9ByrigcigSK+ZwGBiQGhg+TklUtQf2Nsbw0VItsBiHURrBGT6s3Ku0XDAHRGbhWH+Roa/ktRf8AxUJINa0F9KmFixkKD9c/pVrVsbmEaHLdqR6witLzyN0l73yxTNL6GThIQPKKIWAYUKEW/plSRnlRKdVh3VBT7wMkzVe2x/2i5T9W2J2aRQjwmo5nLZGIzuHoaZO792NeRq2UPxnOq3oVkmfQMHsUbgXkie+TUoMt5pAM5kYXFvFGAy7m/d2cRjrC/TB3PXlQz3PWGFHEUepzW2oJoNlpYhtjFu4DqypQrIC67NY9uAmTD4OWIYo/VK7Z8B+QoUe6g2FcOLNlV52SPqqK1q84krGGNHFTGRuiQ/tIOca6dj6W4GVMJksxL6epVsbGDYZaHA87eif7ykpNRGD46z5XYuYD/wCqASyWb4zg5Nzc2ouDTIj4DQAAADALB2pgcc3PYYrYq2fZvU+p44KTlm/Gr0pSierndu+hy3Ba3zUTFa839AcpmiTJSD65hQN9zQB0dC3lTvDrfxHavfFwlilw5gJJxFnhB3onybdR7mHStpxiLDGziOYjx0wgwJ5oFA5B4IjHGIxIHfm6g8BUq2R/opBRFwTXof51OjFwBijW6JjUKem2yHBD2uaPGo33tQZLmZ161Qx4IB14pIQNCa3i9MsqOC3PmEC239zNxzbu1KOLPRwuR8H2q/ca1ZnY7QE+ilGdpqdZKs/TGq92IPsM+HwnGC/kTgTdirdN9UxzVj+U3IGFmYZTwYM8AlCADFVsFCTLGMsW3RI3Sz4mmOgSBCI2RLJTK9Sx+pJiXWfmXEUh7jJ6zoNjlIJITIZJ9jEvQQY99Fm0PxogZ4AoYAF1cgqChivwuzdODsOB5UEhuNOTmQPdD3L6tYyLEHk59JnU/AgpiAYdvtY2UaWxATcL4dJWfE8xQ0NgY24I9ypFRnFLp1EYxvHmEfoUsW1egkCJ3/yhRK0RZCjP57RTB0XuhcdGgjkeH//Z" class="logo-img" alt="5S">
+    <div class="logo-txt">ESCOLA TÉCNICA 5S<br>CONSULTORIA E TREINAMENTOS</div>
+  </div>
+  <button class="btn-nova" id="btn-nova" onclick="voltar()">↩ Nova Verificação</button>
+</header>
+<main>
+  <!-- BUSCA -->
+  <div id="view-search" class="view active">
+    <div class="search-card">
+      <div class="seal">🔒 Ambiente Seguro</div>
+      <h1>Autenticação de Certificado</h1>
+      <p>Valide a autenticidade do certificado inserindo o código de verificação abaixo.</p>
+      <input type="text" id="input-codigo" class="input-field"
+        placeholder="Código de verificação..."
+        spellcheck="false" autocomplete="off">
+      <button class="btn-verify" onclick="autenticar()">🔍 VERIFICAR AGORA</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="view-loading" class="view">
+    <div class="loader-view">
+      <div class="spinner"></div>
+      <p>Consultando base de dados...</p>
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="view-result" class="view">
+    <div class="person-hero">
+      <img id="res-foto" class="person-photo" alt="" style="display:none">
+      <div id="res-iniciais" class="person-initials">??</div>
+      <div class="person-info">
+        <div class="person-name" id="res-nome">—</div>
+        <div class="person-badge">✓ Certificado Verificado</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-row">
+        <div class="row-icon">📅</div>
+        <div class="row-texts">
+          <div class="row-label">Validade do Certificado</div>
+          <div class="row-value green" id="res-validade">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="row-icon">🪪</div>
+        <div class="row-texts">
+          <div class="row-label">C.P.F</div>
+          <div class="row-value" id="res-cpf">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="row-icon">📍</div>
+        <div class="row-texts">
+          <div class="row-label">Cidade (UF)</div>
+          <div class="row-value" id="res-cidade">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="row-icon">🔑</div>
+        <div class="row-texts">
+          <div class="row-label">Código de Autenticidade</div>
+          <div class="row-value mono" id="res-codigo">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="row-icon">🏢</div>
+        <div class="row-texts">
+          <div class="row-label">Instituição Emissora</div>
+          <div class="row-value" id="res-inst" style="font-size:.82rem;white-space:normal;word-break:break-word;line-height:1.3">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="row-icon">📋</div>
+        <div class="row-texts">
+          <div class="row-label">Curso Concluído</div>
+          <div class="row-value green" id="res-curso" style="white-space:normal;word-break:break-word;line-height:1.3">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="row-icon">⏱️</div>
+        <div class="row-texts">
+          <div class="row-label">Carga Horária</div>
+          <div class="row-value" id="res-carga">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="row-icon">📅</div>
+        <div class="row-texts">
+          <div class="row-label">Data de Realização</div>
+          <div class="row-value" id="res-data">—</div>
+        </div>
+      </div>
+    </div>
+    <div id="status-box"></div>
+  </div>
+</main>
+
+<div id="toast"></div>
+<footer>
+  © 2025 ESCOLA TÉCNICA 5S<br>
+  <span style="opacity:.6;font-size:.68rem">Tecnologia de Verificação Segura</span>
+</footer>
+<script>
+// ── Timeout de inatividade: 5 minutos
+let _timer;
+function resetTimer(){
+  clearTimeout(_timer);
+  _timer=setTimeout(()=>{
+    if(document.getElementById('view-result').classList.contains('active')){
+      if(window.location.search && window.location.search.includes('codigo=')){
+        window.location.href = window.location.href.replace(/[?&]codigo=[^&]*/,'').replace(/\?$/,'') || window.location.pathname;
+      } else {
+        voltar();
+        showToast('⏱ Sessão encerrada por inatividade');
+      }
+    }
+  },5*60*1000);
+}
+['click','keypress','touchstart','mousemove'].forEach(ev=>document.addEventListener(ev,resetTimer,{passive:true}));
+resetTimer();
+
+// ── Utilitários
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  const isResult = id==='result';
+  document.getElementById('btn-nova').classList.toggle('on',isResult);
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  setTimeout(()=>t.style.display='none',3200);
+}
+function voltar(){
+  if(window.location.search && window.location.search.includes('codigo=')){
+    window.location.href = window.location.pathname + window.location.search.replace(/[?&]codigo=[^&]*/,'').replace(/^&/,'?') || window.location.pathname;
+    return;
+  }
+  document.getElementById('input-codigo').value='';
+  showView('search');
+}
+function gerarIniciais(nome){
+  if(!nome) return '?';
+  const p=nome.trim().split(/\s+/);
+  return(p.length>=2?p[0][0]+p[p.length-1][0]:p[0].substring(0,2)).toUpperCase();
+}
+
+// ── Mascara CPF: 3 primeiros e 2 últimos visíveis → ex: 053.***.***-06
+function mascararCpf(cpf){
+  if(!cpf) return '—';
+  const s = cpf.replace(/[^0-9]/g,'');
+  if(s.length !== 11) return cpf;
+  return s.slice(0,3) + '.***.***-' + s.slice(9,11);
+}
+
+// ── Render
+function renderResultado(d){
+  const elVal = document.getElementById('res-validade');
+  elVal.textContent = formatarDataSimples_(d.validade) || '—';
+  elVal.className   = 'row-value ' + (d.status === 'expirado' ? 'red' : 'green');
+
+  document.getElementById('res-nome').textContent     = d.nome               || '—';
+  document.getElementById('res-cpf').textContent      = mascararCpf(d.cpf);
+  document.getElementById('res-cidade').textContent   = d.cidade             || '—';
+  document.getElementById('res-codigo').textContent   = d.codigo             || '—';
+  document.getElementById('res-inst').textContent     = d.instituicao        || '—';
+  document.getElementById('res-curso').textContent    = d.curso              || '—';
+  document.getElementById('res-carga').textContent    = d.carga              || '—';
+  document.getElementById('res-data').textContent     = d.data               || '—';
+  document.getElementById('res-iniciais').textContent = gerarIniciais(d.nome);
+
+  const imgEl  = document.getElementById('res-foto');
+  const initEl = document.getElementById('res-iniciais');
+
+  if(d._fotoBlob){
+    // Foto já carregada em paralelo — exibe instantaneamente
+    imgEl.src    = d._fotoBlob;
+    imgEl.onload = () => { imgEl.style.display = 'block'; initEl.style.display = 'none'; URL.revokeObjectURL(d._fotoBlob); };
+    imgEl.style.display = 'none';
+  } else {
+    imgEl.style.display  = 'none';
+    initEl.style.display = 'flex';
+  }
+
+  const box = document.getElementById('status-box');
+  if(d.status === 'valido'){
+    box.innerHTML = `<div class="status-banner valid"><div class="status-dot"></div><div>
+      <div class="status-title">✅ Certificado Autêntico</div>
+      <div class="status-sub">Informações verificadas e em conformidade com a base oficial da Escola Técnica 5S.</div>
+    </div></div>`;
+  } else {
+    box.innerHTML = `<div class="status-banner expired"><div class="status-dot"></div><div>
+      <div class="status-title">⚠️ Validade Expirada</div>
+      <div class="status-sub">Certificado autêntico, porém fora do prazo de validade estabelecido pela instituição.</div>
+    </div></div>`;
+  }
+
+  showView('result');
+}
+
+// ── API
+const API_URL   = 'https://certificados-5s-api.vercel.app';
+const API_TOKEN = 'NYOc4Komp_AF-KBeQWjDHdxlKTY6Q-uZeCChGd2p1rk';
+
+// ── FETCH com token de segurança
+async function autenticar(codigoAuto){
+  const codigo = (codigoAuto || document.getElementById('input-codigo').value || '').trim();
+  if(!codigo){ showToast('Por favor, insira o código.'); return; }
+  showView('loading');
+
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('timeout')), 20000)
+  );
+
+  try {
+    // 1. Busca os dados do certificado
+    const resp = await Promise.race([
+      fetch(`${API_URL}/validar?codigo=${encodeURIComponent(codigo)}`, {
+        headers: { 'X-API-Token': API_TOKEN }
+      }),
+      timeout
+    ]);
+    const d = await resp.json();
+    if(!d || d.erro){ showView('search'); showToast(d?.mensagem || 'Certificado não encontrado.'); return; }
+
+    // 2. Dispara busca da foto em paralelo com a renderização
+    const fotoPromise = d.fotoId
+      ? fetch(`${API_URL}/foto?id=${encodeURIComponent(d.fotoId)}`, {
+          headers: { 'X-API-Token': API_TOKEN }
+        }).then(r => r.ok ? r.blob() : null).catch(() => null)
+      : Promise.resolve(null);
+
+    // 3. Aguarda dados + foto juntos antes de mostrar
+    const [, blob] = await Promise.all([Promise.resolve(d), fotoPromise]);
+
+    // 4. Injeta o blob da foto no objeto de dados
+    if(blob) d._fotoBlob = URL.createObjectURL(blob);
+
+    renderResultado(d);
+  } catch(err){
+    showView('search');
+    showToast(err.message === 'timeout' ? 'Tempo esgotado. Tente novamente.' : 'Falha ao consultar. Tente novamente.');
+  }
+}
+
+// Garante formato dd/mm/aaaa
+function formatarDataSimples_(v){
+  if(!v) return '';
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(v)) return v;
+  const d = new Date(v);
+  if(!isNaN(d.getTime())){
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    return dd + '/' + mm + '/' + d.getFullYear();
+  }
+  return v;
+}
+
+window.addEventListener('load', () => {
+  // ✅ Lê o código da URL (?codigo=xxx) — funciona com QR Code e link direto
+  const params = new URLSearchParams(window.location.search);
+  const c = params.get('codigo') || '';
+  if(c) autenticar(c);
+  document.getElementById('input-codigo').addEventListener('keypress', e => {
+    if(e.key === 'Enter') autenticar();
+  });
+});
+</script>
+</body>
+</html>
